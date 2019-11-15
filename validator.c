@@ -6,13 +6,34 @@
 /*   By: amurtone <amurtone@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/12 17:27:13 by amurtone          #+#    #+#             */
-/*   Updated: 2019/11/13 14:45:15 by amurtone         ###   ########.fr       */
+/*   Updated: 2019/11/15 15:33:16 by amurtone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fillit.h"
 #include <stdio.h>
+/*
+#define TX tetrimino->block[j].x
+#define TX(a) (tetrimino->bock[a].y)*/
+typedef struct s_tile
+{
+	//char value;
+	int x;
+	int y;
+} t_tile;
 
+typedef struct s_tetrimino
+{
+	t_tile block[4];
+} t_tetr;
+/*
+t_tetr *tetrimino;
+
+c_coords(str, &tetrimino)
+
+TX = i % 5;
+TX() = i / 5;
+*/
 int		v_matrix(char *str)
 {
 	int i;
@@ -73,60 +94,126 @@ int			v_tetris(char *str)
 	return (-1);
 }
 
-int		*c_cords(char *str)
+void	c_cords(char *str)
 {
-	int		x;
-	int		y;
+	//t_tile	h;
+	t_tetr  tetri;
 	int		i;
-	int		*cords;
-	int		j;
+	int 	j;
 
-	if (!(cords = (int *)malloc(sizeof(int) * 8)))
-			return (-1);
 	i = 0;
 	j = 0;
-	while (str[i] != '\0')
+	while (i < 20)
 	{
 		if (str[i] == '#')
 		{
-			cords[j] = i % 5;
-			cords[j + 1] = i / 5;
+			tetri.block[j].x = i % 5;
+			tetri.block[j].y = i / 5;
+			ft_putnbr(tetri.block[j].x);
+			ft_putnbr(tetri.block[j].y);
 		}
 		i++;
-		j += 2;
+		j++;
 	}
-	printf("%d\n", cords);
+	/*
+	i = 0;
+	while (i < 8)
+	{
+		ft_putnbr(cords[i]);
+		i++;
+	}
+	return (cords);
+	*/
+}
+
+int			c_x_min(int *cords)
+{
+	int		x;
+	int		i;
+
+	i = 0;
+	x = cords[0];
+	while (cords[i])
+	{
+		if (i % 2 == 0)
+			if (cords[i] < x)
+				x = cords[i];
+	   i++;	
+	}
+	return (x);
+}
+
+int			c_y_min(int *cords)
+{
+	int		y;
+	int 	i;
+
+	i = 0;
+	y = cords[1];
+	while (cords[i])
+	{
+		if (i % 2 != 0)
+			if (cords[i] < y)
+				y = cords[i];
+		i++;
+	}
+	return (y);
+}
+
+int			*c_adjusted(int *cords)
+{
+	int xmin;
+	int ymin;
+	int	i;
+	
+	i = 0;
+	xmin = c_x_min(cords);
+	ymin = c_y_min(cords);
+	while (cords[i])
+	{
+		if (i % 2 == 0)
+			cords[i] = cords[i] - xmin;
+		else
+			cords[i] = cords[i] - ymin;
+		i++;	
+	}
 	return (cords);
 }
 
-char		*v_file(char *argv, const int fd)
+char	*v_file(char *argv)
 {
 	char	buf[BUFF_SIZE + 1];
 	char	*temp;
 	char	*str;
 	int		ret;
-	int		*cords;
+	int 	fd;
 
+	fd = open(argv, O_RDONLY);
+	if (fd == -1)
+		return (NULL); //error funktio
 	ft_putendl("starting to read");
-	if (str == NULL)
-		str = ft_strnew(0);
+	if (!(str = ft_strnew(0)))
+				return (NULL);
 	while ((ret = read(fd, buf, BUFF_SIZE)) > 0)
 	{
 		buf[ret] = '\0';
-		temp = ft_strdup(buf);
-		if (v_tetris(temp) == 0 && v_matrix(temp) == 0)
+		ft_putendl(buf);
+		if (v_tetris(buf) == 0 && v_matrix(buf) == 0)
 		{
-			ft_putendl(temp);
-			cords = c_cords(temp);
+			ft_putendl("buf before strjoin");
+			ft_putendl(buf);
 			ft_putendl("starting str join");
-			str = ft_strjoin(str, temp);
-			ft_strdel(&temp);
+			temp = ft_strjoin(str, buf);
+			free(str);
+			str = temp;
+			ft_putendl("str after ft_strjoin");
+			ft_putendl(str);
 		}
 		else
-			return (0);
+			return (NULL);
 	}
 	if (ret < 0)
-		return (0);
+		return (NULL);
 	return (str);
 }
 
@@ -135,7 +222,7 @@ int		c_tetris(char *str)
 	int		count;
 	int		i;
 
-	i = 0;
+		i = 0;
 	count = 1;
 	while (str[i] != '\0')
 	{
@@ -150,19 +237,15 @@ int		main(int argc, char **argv)
 {
 	char	*s;
 	int		c;
-	int		fd;
 
-	fd = open(argv[1], O_RDONLY);
 	if (argc > 1)
 	{
-		if (!(s = v_file(argv[1], fd)))
+		if (!(s = v_file(argv[1])))
 		{
 			ft_putendl("Error");
 			return (0);
 		}
 		c = c_tetris(s);
-		ft_putnbr(c);
-		ft_putchar('\n');
 		ft_putendl("String copied from file");
 		ft_putendl(s);
 	}
