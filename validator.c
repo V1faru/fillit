@@ -6,7 +6,7 @@
 /*   By: amurtone <amurtone@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/12 17:27:13 by amurtone          #+#    #+#             */
-/*   Updated: 2019/11/15 15:33:16 by amurtone         ###   ########.fr       */
+/*   Updated: 2019/11/15 15:46:03 by amurtone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,38 +94,6 @@ int			v_tetris(char *str)
 	return (-1);
 }
 
-void	c_cords(char *str)
-{
-	//t_tile	h;
-	t_tetr  tetri;
-	int		i;
-	int 	j;
-
-	i = 0;
-	j = 0;
-	while (i < 20)
-	{
-		if (str[i] == '#')
-		{
-			tetri.block[j].x = i % 5;
-			tetri.block[j].y = i / 5;
-			ft_putnbr(tetri.block[j].x);
-			ft_putnbr(tetri.block[j].y);
-		}
-		i++;
-		j++;
-	}
-	/*
-	i = 0;
-	while (i < 8)
-	{
-		ft_putnbr(cords[i]);
-		i++;
-	}
-	return (cords);
-	*/
-}
-
 int			c_x_min(int *cords)
 {
 	int		x;
@@ -180,6 +148,45 @@ int			*c_adjusted(int *cords)
 	return (cords);
 }
 
+int		c_tetris(char *str)
+{
+	int		count;
+	int		i;
+
+		i = 0;
+	count = 1;
+	while (str[i] != '\0')
+	{
+		if (str[i] == '\n')
+			count++;
+		i++;
+	}
+	return (count / 5);
+}
+
+void	c_cords(char *str)
+{
+	//t_tile	h;
+	t_tetr  tetri;
+	int		i;
+	int 	j;
+
+	i = 0;
+	j = 0;
+	while (i < 20)
+	{
+		if (str[i] == '#')
+		{
+			tetri.block[j].x = i % 5;
+			tetri.block[j].y = i / 5;
+			ft_putnbr(tetri.block[j].x);
+			ft_putnbr(tetri.block[j].y);
+		}
+		i++;
+		j++;
+	}
+}
+
 char	*v_file(char *argv)
 {
 	char	buf[BUFF_SIZE + 1];
@@ -215,22 +222,6 @@ char	*v_file(char *argv)
 	if (ret < 0)
 		return (NULL);
 	return (str);
-}
-
-int		c_tetris(char *str)
-{
-	int		count;
-	int		i;
-
-		i = 0;
-	count = 1;
-	while (str[i] != '\0')
-	{
-		if (str[i] == '\n')
-			count++;
-		i++;
-	}
-	return (count / 5);
 }
 
 int		main(int argc, char **argv)
